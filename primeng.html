@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Primeng Icons</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="primeicons.css" type="text/css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        .title {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .wrapper-icons {
+            display: grid;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 1rem;
+            list-style: none;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+
+        .wrapper-icons .card {
+            padding: 1rem;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            transition: 0.3s;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .wrapper-icons .card>.card_icon {
+            margin-bottom: .75rem;
+            font-size: 1.5rem;
+        }
+
+        .wrapper-icons .card>.card_text {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<h2 class="title">PrimeIcons 5.0.0</h2>
+<ul class="wrapper-icons">
+</ul>
+
+<body>
+
+</body>
+
+<script src="./vendor/get-css-data@2.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script>
+    function copyToClipboard(event) {
+        const copyText = event.target;
+        const textClass = `pi ${copyText.textContent}`;
+
+        // Copy the text inside the text field
+        navigator.clipboard.writeText(textClass);
+        Toastify({
+            text: `Texto copiado: ${textClass} `,
+            duration: 4000,
+            close: true,
+            gravity: "top", // `top` or `bottom`
+            position: "right", // `left`, `center` or `right`
+            stopOnFocus: true, // Prevents dismissing of toast on hover
+            style: {
+                background: "linear-gradient(to right, #00b09b, #96c93d)",
+            }
+        }).showToast();
+    }
+
+    function drawIcons(listOfSelectors) {
+        const fragment = document.createDocumentFragment();
+        listOfSelectors.forEach((textCss) => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+            <div class="card">
+                <div class="card_icon"><i class="pi ${textCss}"></i></div>
+                <div class="card_text" onclick="copyToClipboard(event)">${textCss}</div>
+            </div>`;
+            fragment.appendChild(li);
+        });
+
+        const queryWrapperSelector = document.querySelector('.wrapper-icons');
+        queryWrapperSelector.appendChild(fragment);
+    }
+    getCssData({
+        useCSSOM: true,
+        onComplete: function (cssText, cssArray, nodeArray) {
+            const contentTextCss = cssText;
+
+            const regexCSS = new RegExp(/([^}][^;][^{]*{)([^}])*[^{]*}/, 'g');
+            const regexSelector = /.+?({)/;
+            const listOfSelectors = contentTextCss.match(regexCSS)
+                .map(
+                    r => {
+                        const row = r.replace(/\n/g, '');
+                        const rowSelector = regexSelector.exec(row)[0]
+                            .replace(':before', '')
+                            .replace('{', '')
+                            .replace(/ /g, '')
+                            .replace('.', '')
+                            .trim()
+                        return rowSelector;
+                    }
+                )
+                .filter(r => !r.includes('@font-face'))
+                .filter(r => !r.includes('@-webkit-'))
+                .filter(r => !r.includes('@keyframe'))
+                .filter(r => !r.includes('@mediaon'))
+                .filter(r => !r.includes('wrapper-icons'))
+                .filter(r => !r.includes('toast'))
+                .filter(r => r != 'pi')
+                .filter(r => r != 'h3')
+                .filter(r => r != 'title')
+                .filter(r => r != 'pi-fw')
+                .filter(r => r != 'pi-spin')
+                .filter(r => r != '100%')
+                .sort((a, b) => a - b);
+            // console.table(listOfSelectors.slice(0,25))
+
+            const listOfSelectorsUnique = [...new Set(listOfSelectors)];
+            // console.log('listOfSelectorsUnique', listOfSelectorsUnique.length)
+            // console.log('listOfSelectorsUnique', listOfSelectorsUnique)
+
+            drawIcons(listOfSelectorsUnique);
+        }
+    });
+</script>
+
+</html>
